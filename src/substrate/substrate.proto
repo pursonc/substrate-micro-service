@@ -3,16 +3,17 @@ syntax = "proto3";
 package substrate;
 
 service SubstrateService {
-    rpc GetKeyPair(GetKeyPairReq) returns (GetKeyPairResp);
+    rpc transfer(TransferReq) returns (TransferResp);
 }
 
-message GetKeyPairReq {
-    string coin = 1;
+message TransferReq {
+    string fromKey = 1;
+    string to = 2;
+    string amount = 3;
+    string coin = 4;
 }
 
-message GetKeyPairResp {
-    string privateKey = 1;
-    string publicKey = 2;
-    string address = 3;
+message TransferResp {
+    string signedTx = 1;
 }
 

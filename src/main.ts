@@ -10,12 +10,14 @@ async function bootstrap() {
       transport: Transport.GRPC,
       options: {
         package: 'substrate',
-        protoPath: join(__dirname, 'substrate/substrate.proto'),
+        protoPath: join(__dirname, '../substrate/substrate.proto'),
         url: '0.0.0.0:2010',
       },
     },
   );
   // @ts-ignore
-  app.listen(() => console.log('Substrate micro service is listening on :2010'));
+  app.listen(() =>
+    console.log('Substrate micro service is listening on :2010'),
+  );
 }
 bootstrap();
