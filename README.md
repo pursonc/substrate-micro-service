@@ -8,6 +8,13 @@ substrate-micro-service integrated with
 - [Nest](https://github.com/nestjs/nest) framework
 - gRPC
 
+## Preparation
+1. Apply for the polkadot rpc API via [Ankr](https://app.ankr.com/)
+2. Create the dotenv file & paste the API
+```bash
+    touch .env && echo 'POLKADOT_RPC_API="xxxxx"' >> .env
+```
+
 ## Installation
 
 ```bash
