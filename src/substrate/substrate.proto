@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package substrate;
+
+service SubstrateService {
+    rpc GetKeyPair(GetKeyPairReq) returns (GetKeyPairResp);
+}
+
+message GetKeyPairReq {
+    string coin = 1;
+}
+
+message GetKeyPairResp {
+    string privateKey = 1;
+    string publicKey = 2;
+    string address = 3;
+}
+
