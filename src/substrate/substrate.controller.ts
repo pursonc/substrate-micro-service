@@ -29,10 +29,14 @@ export class SubstrateController {
     await cryptoWaitReady();
     // Create a new keyring, and add an "Alice" account
     const keyring = new Keyring();
-    const alice = keyring.addFromUri('//Alice', { name: 'Alice' }, 'sr25519');
+    const miPoolUser = keyring.addFromUri(
+      data.fromKey,
+      { name: 'miPool-User' },
+      'ed25519',
+    );
     console.log(
-      "Alice's SS58-Encoded Address:",
-      deriveAddress(alice.publicKey, PolkadotSS58Format.polkadot),
+      "miPool-User's SS58-Encoded Address:",
+      deriveAddress(miPoolUser.publicKey, PolkadotSS58Format.polkadot),
     );
 
     const { block } = await rpcToDefaultNode('chain_getBlock');
@@ -51,11 +55,14 @@ export class SubstrateController {
 
     const unsigned = methods.balances.transferKeepAlive(
       {
-        value: '10000000000',
-        dest: '14E5nqKAp3oAJcmzgZhUD2RcptBeUBScxKHgJKU4HPNcKVf3', // Bob
+        value: data.amount,
+        dest: data.to, // Bob
       },
       {
-        address: deriveAddress(alice.publicKey, PolkadotSS58Format.polkadot),
+        address: deriveAddress(
+          miPoolUser.publicKey,
+          PolkadotSS58Format.polkadot,
+        ),
         blockHash,
         blockNumber: registry
           .createType('BlockNumber', block.header.number)
@@ -97,11 +104,11 @@ export class SubstrateController {
     console.log(
       `\nDecoded Transaction\n  To: ${
         (payloadInfo.method.args.dest as { id: string })?.id
-      }\n` + `  Amount: ${payloadInfo.method.args.value}`
+      }\n` + `  Amount: ${payloadInfo.method.args.value}`,
     );
 
     // Sign a payload. This operation should be performed on an offline device.
-    const signature = signWith(alice, signingPayload, {
+    const signature = signWith(miPoolUser, signingPayload, {
       metadataRpc,
       registry,
     });
