@@ -4,7 +4,7 @@ import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
 import { TransferReq } from './interfaces/transfer-req';
 import { TransferResp } from './interfaces/transfer-resp';
 
-import { Keyring, ApiPromise, WsProvider } from '@polkadot/api';
+import { Keyring } from '@polkadot/api';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import {
   construct,
@@ -15,7 +15,11 @@ import {
   PolkadotSS58Format,
 } from '@substrate/txwrapper-polkadot';
 
-import { rpcToDefaultNode, signWith, uint8ArrayfromHexString } from '../../common/util';
+import {
+  rpcToDefaultNode,
+  signWith,
+  uint8ArrayfromHexString,
+} from '../../common/util';
 
 @Controller('substrate')
 export class SubstrateController {
@@ -58,9 +62,11 @@ export class SubstrateController {
       specName,
       specVersion,
       metadataRpc,
+      asCallsOnlyArg: true,
     });
-
-    const unsigned = methods.balances.transferKeepAlive(
+    //[`transferKeepAlive`] Same as the [`transfer`] call, but with a check that the transfer will not kill the
+    // origin account.
+    const unsigned = methods.balances.transfer(
       {
         value: data.amount,
         dest: data.to, // Bob
@@ -77,7 +83,7 @@ export class SubstrateController {
         eraPeriod: 64,
         genesisHash,
         metadataRpc,
-        nonce: 0, // Assuming this is Alice's first tx on the chain
+        nonce: 1, // Assuming this is Alice's first tx on the chain
         specVersion,
         tip: 0,
         transactionVersion,

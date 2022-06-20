@@ -4,6 +4,7 @@ package substrate;
 
 service SubstrateService {
     rpc transfer(TransferReq) returns (TransferResp);
+    rpc stake(StakeReq) returns (StakeResp);
 }
 
 message TransferReq {
@@ -16,4 +17,19 @@ message TransferReq {
 message TransferResp {
     string signedTx = 1;
 }
+
+
+message StakeReq {
+    string controller = 1;
+    string stash = 2;
+    string nominators = 3;
+    string amount = 4;
+    string coin = 5;
+    int64 mode = 6;
+}
+
+message StakeResp {
+    string signedTx = 1;
+}
+
 
