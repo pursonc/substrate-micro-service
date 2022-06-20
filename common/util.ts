@@ -4,9 +4,6 @@ import { createMetadata, OptionsWithMeta } from '@substrate/txwrapper-polkadot';
 import fetch from 'node-fetch';
 import 'dotenv/config';
 
-
-
-
 /**
  * Send a JSONRPC request to the node .
  *
@@ -33,7 +30,7 @@ export function rpcToDefaultNode(
     .then(({ error, result }) => {
       if (error) {
         throw new Error(
-          `${error.code} ${error.message}: ${JSON.stringify(error.data)}`
+          `${error.code} ${error.message}: ${JSON.stringify(error.data)}`,
         );
       }
 
@@ -65,4 +62,26 @@ export function signWith(
     .sign(pair);
 
   return signature as unknown as `0x${string}`;
+}
+
+/**
+ * function as the name and also implement like :
+ * const hex = Uint8Array.from(Buffer.from(hexString, 'hex'));
+ *
+ * const backToHexString = Buffer.from(hex).toString('hex');
+ *
+ *
+ * @param hexString - the hex string
+ */
+export function uint8ArrayfromHexString(hexString: string): Uint8Array {
+  return Uint8Array.from(
+    hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)),
+  );
+}
+
+export function uint8ArrayToHexString(bytes: Uint8Array): string {
+  return bytes.reduce(
+    (str, byte) => str + byte.toString(16).padStart(2, '0'),
+    '',
+  );
 }

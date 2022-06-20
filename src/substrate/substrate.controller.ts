@@ -15,7 +15,7 @@ import {
   PolkadotSS58Format,
 } from '@substrate/txwrapper-polkadot';
 
-import { rpcToDefaultNode, signWith } from '../../common/util';
+import { rpcToDefaultNode, signWith, uint8ArrayfromHexString } from '../../common/util';
 
 @Controller('substrate')
 export class SubstrateController {
@@ -29,11 +29,18 @@ export class SubstrateController {
     await cryptoWaitReady();
     // Create a new keyring, and add an "Alice" account
     const keyring = new Keyring();
-    const miPoolUser = keyring.addFromUri(
-      data.fromKey,
+
+
+    const seed =  uint8ArrayfromHexString(data.fromKey)
+
+    // console.info('priKey:', data.fromKey, 'seed:', seed);
+
+    const miPoolUser = keyring.addFromSeed(
+      seed,
       { name: 'miPool-User' },
       'ed25519',
     );
+
     console.log(
       "miPool-User's SS58-Encoded Address:",
       deriveAddress(miPoolUser.publicKey, PolkadotSS58Format.polkadot),
