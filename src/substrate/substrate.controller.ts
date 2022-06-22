@@ -7,7 +7,7 @@ import {
   StakingReq,
   StakingResp,
 } from './interfaces/substrate.interface';
-
+import 'dotenv/config';
 import { Keyring } from '@polkadot/api';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import {
@@ -131,6 +131,10 @@ export class SubstrateController {
       registry,
     });
     console.log(`\nTransaction to Submit: ${tx}`);
+
+    const expectedTxHash = construct.txHash(tx);
+    console.log(`\nExpected Tx Hash: ${expectedTxHash}`);
+
     const actualTxHash = await rpcToDefaultNode('author_submitExtrinsic', [tx]);
     console.log(`Actual Tx Hash: ${actualTxHash}`);
     return { resultHash: actualTxHash };
@@ -147,17 +151,12 @@ export class SubstrateController {
     // Create a new keyring, and add an "Alice" account
     const keyring = new Keyring();
 
-    const seed = uint8ArrayfromHexString(data.controllerKey);
+    const seed = uint8ArrayfromHexString(data.stashKey);
 
     const miPoolUser = keyring.addFromSeed(
       seed,
       { name: 'miPool-User' },
       'ed25519',
-    );
-
-    console.log(
-      "miPool-User's SS58-Encoded Address:",
-      deriveAddress(miPoolUser.publicKey, PolkadotSS58Format.polkadot),
     );
 
     const { block } = await rpcToDefaultNode('chain_getBlock');
@@ -194,13 +193,13 @@ export class SubstrateController {
       registry,
     };
     // Only accept 6 nominator in polkadot
-    const targets = data.nominators.split(',', 6);
+    const targets = data.validators.split(',', 6);
     const unsignedNominatorMethod = methods.staking.nominate(
       {
         targets,
       },
-      txInfo,
-      txOptions,
+      { ...txInfo },
+      { ...txOptions },
     );
 
     const unsignedBondMethod = methods.staking.bond(
@@ -209,8 +208,8 @@ export class SubstrateController {
         payee: data.payee,
         value: data.value,
       },
-      txInfo,
-      txOptions,
+      { ...txInfo },
+      { ...txOptions },
     );
 
     const unsigned = methods.utility.batchAll(
@@ -229,7 +228,7 @@ export class SubstrateController {
         eraPeriod: 64,
         transactionVersion,
       },
-      txOptions,
+      { ...txOptions },
     );
 
     // Decode an unsigned transaction.
@@ -269,6 +268,10 @@ export class SubstrateController {
       registry,
     });
     console.log(`\nTransaction to Submit: ${tx}`);
+
+    const expectedTxHash = construct.txHash(tx);
+    console.log(`\nExpected Tx Hash: ${expectedTxHash}`);
+
     const actualTxHash = await rpcToDefaultNode('author_submitExtrinsic', [tx]);
     console.log(`Actual Tx Hash: ${actualTxHash}`);
     return { resultHash: actualTxHash };

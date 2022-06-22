@@ -14,7 +14,7 @@ export function rpcToDefaultNode(
   method: string,
   params: any[] = [],
 ): Promise<any> {
-  return fetch(process.env.POLKADOT_RPC_API, {
+  return fetch(process.env.POLKADOT_HTTP_API, {
     body: JSON.stringify({
       id: 1,
       jsonrpc: '2.0',

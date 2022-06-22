@@ -6,8 +6,8 @@ export interface TransferReq {
 }
 
 export interface StakingReq {
-  nominators: string;
-  controllerKey: string;
+  validators: string;
+  stashKey: string;
   payee: string;
   value: string;
   coin: string;

@@ -20,8 +20,8 @@ message TransferResp {
 }
 
 message StakingReq {
-    string nominators = 1;
-    string controllerKey = 2;
+    string validators = 1;
+    string stashKey = 2;
     string payee = 3;
     string value = 4;
     string coin = 5;
