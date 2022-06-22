@@ -3,10 +3,9 @@ syntax = "proto3";
 package substrate;
 
 service SubstrateService {
-    rpc transfer(TransferReq) returns (MethodsResp);
-    rpc stake(StakeReq) returns (MethodsResp);
-    rpc signTx(SignTxReq) returns (SignTxResp);
-    rpc pushTx(PushTxReq) returns (PushTxResp);
+    rpc transfer(TransferReq) returns (TransferResp);
+    rpc staking(StakingReq) returns (StakingResp);
+
 }
 
 message TransferReq {
@@ -16,86 +15,18 @@ message TransferReq {
     string coin = 4;
 }
 
-message MethodsResp {
-    string signingPayload = 1;
+message TransferResp {
+    string resultHash = 1;
 }
 
-
-message StakeReq {
-    string controller = 1;
-    string stash = 2;
-    string nominators = 3;
-    string amount = 4;
+message StakingReq {
+    string nominators = 1;
+    string controllerKey = 2;
+    string payee = 3;
+    string value = 4;
     string coin = 5;
-    int64 mode = 6;
 }
 
-message UnsignedTransactionProto {
-    /**
- * @description The ss-58 encoded address
- */
-    string address = 1;
-    /**
-     * @description The checkpoint hash of the block, in hex
-     */
-    string blockHash = 2;
-    /**
-     * @description The checkpoint block number, in hex
-     */
-    string blockNumber = 3;
-    /**
-     * @description The era for this transaction, in hex
-     */
-    string era = 4;
-    /**
-     * @description The genesis hash of the chain, in hex
-     */
-    string genesisHash = 5;
-    /**
-     * @description The encoded method (with arguments) in hex
-     */
-    string method = 6;
-    /**
-     * @description The nonce for this transaction, in hex
-     */
-    string nonce = 7;
-    /**
-     * @description The current spec version for the runtime
-     */
-    string specVersion = 8;
-    /**
-     * @description The tip for this transaction, in hex
-     */
-    string tip = 9;
-    /**
-     * @description The current transaction version for the runtime
-     */
-    string transactionVersion = 10;
-    /**
-     * @description The applicable signed extensions for this runtime
-     */
-    repeated string signedExtensions = 11;
-    /**
-     * @description The version of the extrinsic we are dealing with
-     */
-    int64 version = 12;
-
-    string metadataRpc = 13;
+message StakingResp {
+    string resultHash = 1;
 }
-
-message SignTxReq {
-    string signingPayload = 1;
-    string method  = 2;
-}
-
-message SignTxResp {
-    string signature = 1;
-}
-
-message PushTxReq {
-
-}
-message PushTxResp {
-
-}
-
