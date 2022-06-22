@@ -232,8 +232,45 @@ export class SubstrateController {
       txOptions,
     );
 
+    // Decode an unsigned transaction.
+    const decodedUnsigned = decode(unsigned, {
+      metadataRpc,
+      registry,
+    });
+    console.log(
+      `\nDecoded Transaction\n  To: ${
+        (decodedUnsigned.method.args.dest as { id: string })?.id
+      }\n` + `  Amount: ${decodedUnsigned.method.args.value}`,
+    );
 
-    return { resultHash: '' };
+    // // Construct the signing payload from an unsigned transaction.
+    const signingPayload = construct.signingPayload(unsigned, { registry });
+    console.log(`\nPayload to Sign: ${signingPayload}`);
+
+    // Decode the information from a signing payload.
+    const payloadInfo = decode(signingPayload, {
+      metadataRpc,
+      registry,
+    });
+    console.log(
+      `\nDecoded Transaction\n  To: ${
+        (payloadInfo.method.args.dest as { id: string })?.id
+      }\n` + `  Amount: ${payloadInfo.method.args.value}`,
+    );
+    // Sign a payload. This operation should be performed on an offline device.
+    const signature = signWith(miPoolUser, signingPayload, {
+      metadataRpc,
+      registry,
+    });
+    console.log(`\nSignature: ${signature}`);
+    // Serialize a signed transaction.
+    const tx = construct.signedTx(unsigned, signature, {
+      metadataRpc,
+      registry,
+    });
+    console.log(`\nTransaction to Submit: ${tx}`);
+    const actualTxHash = await rpcToDefaultNode('author_submitExtrinsic', [tx]);
+    console.log(`Actual Tx Hash: ${actualTxHash}`);
+    return { resultHash: actualTxHash };
   }
-
 }

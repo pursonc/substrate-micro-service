@@ -16,3 +16,7 @@ export interface StakingReq {
 export interface StakingResp {
   resultHash: string;
 }
+
+export interface TransferResp {
+  resultHash: string;
+}
