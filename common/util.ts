@@ -74,9 +74,10 @@ export function signWith(
  * @param hexString - the hex string
  */
 export function uint8ArrayfromHexString(hexString: string): Uint8Array {
-  return Uint8Array.from(
-    hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)),
-  );
+  return Uint8Array.from(Buffer.from(hexString, 'hex'));
+  // Uint8Array.from(
+  //   hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)),
+  // );
 }
 
 export function uint8ArrayToHexString(bytes: Uint8Array): string {

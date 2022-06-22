@@ -8,7 +8,7 @@ import {
   StakingResp,
 } from './interfaces/substrate.interface';
 
-import { Keyring, ApiPromise, WsProvider } from '@polkadot/api';
+import { Keyring } from '@polkadot/api';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import {
   construct,
@@ -63,9 +63,11 @@ export class SubstrateController {
       specName,
       specVersion,
       metadataRpc,
+      asCallsOnlyArg: true,
     });
-
-    const unsigned = methods.balances.transferKeepAlive(
+    //[`transferKeepAlive`] Same as the [`transfer`] call, but with a check that the transfer will not kill the
+    // origin account.
+    const unsigned = methods.balances.transfer(
       {
         value: data.amount,
         dest: data.to, // Bob
@@ -103,7 +105,7 @@ export class SubstrateController {
       }\n` + `  Amount: ${decodedUnsigned.method.args.value}`,
     );
 
-    // Construct the signing payload from an unsigned transaction.
+    // // Construct the signing payload from an unsigned transaction.
     const signingPayload = construct.signingPayload(unsigned, { registry });
     console.log(`\nPayload to Sign: ${signingPayload}`);
 
@@ -233,4 +235,5 @@ export class SubstrateController {
 
     return { resultHash: '' };
   }
+
 }

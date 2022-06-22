@@ -1,6 +1,3 @@
-export interface TransferResp {
-  resultHash: string;
-}
 export interface TransferReq {
   fromKey: string;
   to: string;

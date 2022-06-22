@@ -5,6 +5,7 @@ package substrate;
 service SubstrateService {
     rpc transfer(TransferReq) returns (TransferResp);
     rpc staking(StakingReq) returns (StakingResp);
+
 }
 
 message TransferReq {
