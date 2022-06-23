@@ -20,3 +20,13 @@ export interface StakingResp {
 export interface TransferResp {
   resultHash: string;
 }
+
+export interface UnStakeReq {
+  stashKey: string;
+  value: string;
+  coin: string;
+}
+
+export interface UnStakeResp {
+  resultHash: string;
+}

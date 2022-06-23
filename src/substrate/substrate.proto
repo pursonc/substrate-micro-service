@@ -5,7 +5,7 @@ package substrate;
 service SubstrateService {
     rpc transfer(TransferReq) returns (TransferResp);
     rpc staking(StakingReq) returns (StakingResp);
-
+    rpc unStake(UnStakeReq) returns (UnStakeResp);
 }
 
 message TransferReq {
@@ -28,5 +28,15 @@ message StakingReq {
 }
 
 message StakingResp {
+    string resultHash = 1;
+}
+
+message UnStakeReq {
+    string stashKey = 1;
+    string value = 2;
+    string coin = 3;
+}
+
+message UnStakeResp {
     string resultHash = 1;
 }
