@@ -187,7 +187,7 @@ export class SubstrateController {
       eraPeriod: 64,
       genesisHash,
       metadataRpc,
-      nonce: 3,
+      nonce: 5,
       specVersion,
       tip: 0,
       transactionVersion,
@@ -229,18 +229,7 @@ export class SubstrateController {
       {
         calls: [unsignedBondMethod.method, unsignedNominatorMethod.method],
       },
-      {
-        address: miPoolUser.address,
-        blockHash: blockHash,
-        blockNumber: block.header.number,
-        genesisHash,
-        metadataRpc,
-        nonce: 3,
-        specVersion: specVersion,
-        tip: 0,
-        eraPeriod: 64,
-        transactionVersion,
-      },
+      { ...txInfo },
       { ...txOptions },
     );
 
@@ -250,9 +239,9 @@ export class SubstrateController {
       registry,
     });
     console.log(
-      `\nDecoded Transaction\n  To: ${
-        (decodedUnsigned.method.args.dest as { id: string })?.id
-      }\n` + `  Amount: ${decodedUnsigned.method.args.value}`,
+      `\nDecoded Transaction\n  calls: ${JSON.stringify(
+        decodedUnsigned.method.args.calls,
+      )}\n`,
     );
 
     // // Construct the signing payload from an unsigned transaction.
@@ -265,10 +254,11 @@ export class SubstrateController {
       registry,
     });
     console.log(
-      `\nDecoded Transaction\n  To: ${
-        (payloadInfo.method.args.dest as { id: string })?.id
-      }\n` + `  Amount: ${payloadInfo.method.args.value}`,
+      `\nDecoded Transaction\n  calls: ${JSON.stringify(
+        payloadInfo.method.args.calls,
+      )}\n`,
     );
+
     // Sign a payload. This operation should be performed on an offline device.
     const signature = signWith(miPoolUser, signingPayload, {
       metadataRpc,
