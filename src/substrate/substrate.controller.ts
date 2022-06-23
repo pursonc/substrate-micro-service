@@ -6,6 +6,8 @@ import {
   TransferResp,
   StakingReq,
   StakingResp,
+  UnStakeReq,
+  UnStakeResp,
 } from './interfaces/substrate.interface';
 import 'dotenv/config';
 import { Keyring } from '@polkadot/api';
@@ -24,7 +26,7 @@ import {
   signWith,
   uint8ArrayfromHexString,
 } from '../../common/util';
-
+// TODO: trace the nonce
 @Controller('substrate')
 export class SubstrateController {
   @GrpcMethod('SubstrateService', 'transfer')
@@ -275,6 +277,107 @@ export class SubstrateController {
     const expectedTxHash = construct.txHash(tx);
     console.log(`\nExpected Tx Hash: ${expectedTxHash}`);
     // bad signature reason: tx struct parameters not match , for example tx nonce is 3 and next is 4. all tx must the same.
+    const actualTxHash = await rpcToDefaultNode('author_submitExtrinsic', [tx]);
+    console.log(`Actual Tx Hash: ${actualTxHash}`);
+    return { resultHash: actualTxHash };
+  }
+
+  @GrpcMethod('SubstrateService', 'unStake')
+  async unStake(
+    data: UnStakeReq,
+    metadata: Metadata,
+    call: ServerUnaryCall<any, any>,
+  ): Promise<UnStakeResp> {
+    await cryptoWaitReady();
+    const keyring = new Keyring();
+    const seed = uint8ArrayfromHexString(data.stashKey);
+    const miPoolUser = keyring.addFromSeed(
+      seed,
+      { name: 'miPool-User' },
+      'sr25519',
+    );
+
+    console.log(
+      "miPool-User's SS58-Encoded Address:",
+      deriveAddress(miPoolUser.publicKey, PolkadotSS58Format.polkadot),
+    );
+
+    const { block } = await rpcToDefaultNode('chain_getBlock');
+    const blockHash = await rpcToDefaultNode('chain_getBlockHash');
+    const genesisHash = await rpcToDefaultNode('chain_getBlockHash', [0]);
+    const metadataRpc = await rpcToDefaultNode('state_getMetadata');
+    const { specVersion, transactionVersion, specName } =
+      await rpcToDefaultNode('state_getRuntimeVersion');
+    const registry = getRegistry({
+      chainName: 'Polkadot',
+      specName,
+      specVersion,
+      metadataRpc,
+    });
+    const txInfo = {
+      address: deriveAddress(miPoolUser.publicKey, PolkadotSS58Format.polkadot),
+      blockHash,
+      blockNumber: registry
+        .createType('BlockNumber', block.header.number)
+        .toNumber(),
+      eraPeriod: 64,
+      genesisHash,
+      metadataRpc,
+      nonce: 5,
+      specVersion,
+      tip: 0,
+      transactionVersion,
+    };
+    const txOptions = {
+      metadataRpc,
+      registry,
+    };
+
+    const unsigned = methods.staking.unbond(
+      {
+        value: data.value,
+      },
+      { ...txInfo },
+      { ...txOptions },
+    );
+
+    const decodedUnsigned = decode(unsigned, {
+      metadataRpc,
+      registry,
+    });
+    console.log(
+      `\nDecoded Transaction\n  value: ${JSON.stringify(
+        decodedUnsigned.method.args.value,
+      )}\n`,
+    );
+
+    const signingPayload = construct.signingPayload(unsigned, { registry });
+    console.log(`\nPayload to Sign: ${signingPayload}`);
+
+    const payloadInfo = decode(signingPayload, {
+      metadataRpc,
+      registry,
+    });
+    console.log(
+      `\nDecoded Transaction\n  value: ${JSON.stringify(
+        payloadInfo.method.args.value,
+      )}\n`,
+    );
+
+    const signature = signWith(miPoolUser, signingPayload, {
+      metadataRpc,
+      registry,
+    });
+    console.log(`\nSignature: ${signature}`);
+
+    const tx = construct.signedTx(unsigned, signature, {
+      metadataRpc,
+      registry,
+    });
+    console.log(`\nTransaction to Submit: ${tx}`);
+
+    const expectedTxHash = construct.txHash(tx);
+    console.log(`\nExpected Tx Hash: ${expectedTxHash}`);
     const actualTxHash = await rpcToDefaultNode('author_submitExtrinsic', [tx]);
     console.log(`Actual Tx Hash: ${actualTxHash}`);
     return { resultHash: actualTxHash };
