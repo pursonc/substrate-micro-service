@@ -43,7 +43,7 @@ export class SubstrateController {
     const miPoolUser = keyring.addFromSeed(
       seed,
       { name: 'miPool-User' },
-      'ed25519',
+      'sr25519',
     );
 
     console.log(
@@ -84,7 +84,7 @@ export class SubstrateController {
         eraPeriod: 64,
         genesisHash,
         metadataRpc,
-        nonce: 0,
+        nonce: 3, //遇到outdate错误 需要增加nounce数字
         specVersion,
         tip: 0,
         transactionVersion,
@@ -156,7 +156,7 @@ export class SubstrateController {
     const miPoolUser = keyring.addFromSeed(
       seed,
       { name: 'miPool-User' },
-      'ed25519',
+      'sr25519',
     );
 
     const { block } = await rpcToDefaultNode('chain_getBlock');
@@ -192,21 +192,23 @@ export class SubstrateController {
       metadataRpc,
       registry,
     };
-    // Only accept 6 nominator in polkadot
-    const targets = data.validators.split(',', 6);
-    const unsignedNominatorMethod = methods.staking.nominate(
-      {
-        targets,
-      },
-      { ...txInfo },
-      { ...txOptions },
-    );
+
 
     const unsignedBondMethod = methods.staking.bond(
       {
         controller: miPoolUser.address,
         payee: data.payee,
         value: data.value,
+      },
+      { ...txInfo },
+      { ...txOptions },
+    );
+
+    // Only accept 6 nominator in polkadot
+    const targets = data.validators.split(',', 6);
+    const unsignedNominatorMethod = methods.staking.nominate(
+      {
+        targets,
       },
       { ...txInfo },
       { ...txOptions },
