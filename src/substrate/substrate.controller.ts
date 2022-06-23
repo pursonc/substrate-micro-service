@@ -159,6 +159,11 @@ export class SubstrateController {
       'sr25519',
     );
 
+    console.log(
+      "miPool-User's SS58-Encoded Address:",
+      deriveAddress(miPoolUser.publicKey, PolkadotSS58Format.polkadot),
+    );
+
     const { block } = await rpcToDefaultNode('chain_getBlock');
     const blockHash = await rpcToDefaultNode('chain_getBlockHash');
     const genesisHash = await rpcToDefaultNode('chain_getBlockHash', [0]);
@@ -182,7 +187,7 @@ export class SubstrateController {
       eraPeriod: 64,
       genesisHash,
       metadataRpc,
-      nonce: 0,
+      nonce: 3,
       specVersion,
       tip: 0,
       transactionVersion,
@@ -193,7 +198,13 @@ export class SubstrateController {
       registry,
     };
 
-
+    /**
+     * payee types
+     * Staked - Pay into the stash account, increasing the amount at stake accordingly.
+     * Stash - Pay into the stash account, not increasing the amount at stake.
+     * Account - Pay into a custom account, like so: Account DMTHrNcmA8QbqRS4rBq8LXn8ipyczFoNMb1X4cY2WD9tdBX.
+     * Controller - Pay into the controller account.
+     */
     const unsignedBondMethod = methods.staking.bond(
       {
         controller: miPoolUser.address,
@@ -216,7 +227,7 @@ export class SubstrateController {
 
     const unsigned = methods.utility.batchAll(
       {
-        calls: [unsignedNominatorMethod.method, unsignedBondMethod.method],
+        calls: [unsignedBondMethod.method, unsignedNominatorMethod.method],
       },
       {
         address: miPoolUser.address,
@@ -224,7 +235,7 @@ export class SubstrateController {
         blockNumber: block.header.number,
         genesisHash,
         metadataRpc,
-        nonce: 0,
+        nonce: 3,
         specVersion: specVersion,
         tip: 0,
         eraPeriod: 64,
@@ -273,7 +284,7 @@ export class SubstrateController {
 
     const expectedTxHash = construct.txHash(tx);
     console.log(`\nExpected Tx Hash: ${expectedTxHash}`);
-
+    // bad signature reason: tx struct parameters not match , for example tx nonce is 3 and next is 4. all tx must the same.
     const actualTxHash = await rpcToDefaultNode('author_submitExtrinsic', [tx]);
     console.log(`Actual Tx Hash: ${actualTxHash}`);
     return { resultHash: actualTxHash };
